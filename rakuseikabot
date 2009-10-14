@@ -1,0 +1,5 @@
+#!/bin/sh
+export RUBYLIB=$HOME/local/lib
+export GEM_HOME=$HOME/local/lib/ruby/gem
+cd $HOME/var/twitter_bot/rakuseika
+/usr/local/bin/ruby rakuseika.rb

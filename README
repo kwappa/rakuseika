@@ -1,0 +1,30 @@
+# -*- coding: utf-8 -*-
+・data/ には書き込み権限をつけてください。
+
+・lib/rakuseikabot/tokens.rb に twitter の API利用キーと OAuth のトークンを記入してください。
+
+・gem install rubytter でインストールできる rubytterでは動作しません。
+  ・[patch]
+--------------------------------
+$ diff rubytter/oauth_rubytter.rb rubytter/oauth_rubytter.rb.org
+12c12,14
+<     @access_token.get(path, params, @header)
+---
+>     param_str = '?' + self.class.to_param_str(params)
+>     path = path + param_str unless param_str.empty?
+>     self.class.json_to_struct(JSON::parse(@access_token.get(path, @header).body))
+17c19
+<     @access_token.post(path, params, @header)
+---
+>     self.class.json_to_struct(JSON::parse(@access_token.post(path, params, @header).body))
+19a22
+>
+--------------------------------
+
+  ・fork して修正されている方もいらっしゃいます。
+    http://github.com/Yasushi/rubytter
+
+・coreserver の cron は最短1時間周期でしか動かせない、という仕様になっているため、
+  すべての処理(replyの取得 / replyへの反応 / 定時つぶやき)を同時に行っています。
+  もう少し自由が効くサーバの場合は、1分ごとに動かして各処理を分割する、など
+  工夫したほうがよいでしょう。
