@@ -31,10 +31,16 @@ module RakuseikaBot
       eval(File.open(TWEET_SOURCE).read)
 
       # セッティングの読み込み
+      setting_json = ''
       if File.exists? SETTING_FILE
-        @settings = JSON::parse(File.open(SETTING_FILE).read)
+        File.open(SETTING_FILE) { |f|
+          setting_json = f.read
+        }
+      end
+      if setting_json.length > 0
+        @settings = JSON::parse(setting_json)
       else
-        @settings = {}
+        @settings = { }
       end
 
       # メイン処理
@@ -50,7 +56,7 @@ module RakuseikaBot
       last_mentions = get_last_mentions
       if last_mentions.length > 0
         # 存在するなら書き出し
-        save_replies get_last_mentions
+        save_replies last_mentions
       end
 
       # リプライしてない書き込みがあれば処理
@@ -122,6 +128,8 @@ module RakuseikaBot
 
     # 金言をつぶやき返す
     def reply_wise_saying status
+      return if Time.parse(status.created_at) < Time.now - (24 * 60 * 60)
+
       if /([0-9]{1,3})/ =~ status.text
         index = $1.to_i
         if index < 1 || index > @tweet_source.length
